@@ -455,19 +455,19 @@ void setup(){
 // NOW USE THE ABOVE MACRO TO CREATE THE CODE FOR EACH INTERRUPT
 
 ISR(TIMER1_COMPB_vect){              // set interrupt service for OCR1B of TIMER-1 which flips direction bit of Motor Shield Channel A controlling Main Track
-  DCC_SIGNAL(mainRegs,1)
+  DCC_SIGNAL(progRegs,1)
 }
 
 #ifdef ARDUINO_AVR_UNO      // Configuration for UNO
 
 ISR(TIMER0_COMPB_vect){              // set interrupt service for OCR1B of TIMER-0 which flips direction bit of Motor Shield Channel B controlling Prog Track
-  DCC_SIGNAL(progRegs,0)
+  DCC_SIGNAL(mainRegs,0)
 }
 
 #else      // Configuration for MEGA
 
 ISR(TIMER3_COMPB_vect){              // set interrupt service for OCR3B of TIMER-3 which flips direction bit of Motor Shield Channel B controlling Prog Track
-  DCC_SIGNAL(progRegs,3)
+  DCC_SIGNAL(mainRegs,3)
 }
 
 #endif
