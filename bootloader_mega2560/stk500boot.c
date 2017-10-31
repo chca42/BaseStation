@@ -134,7 +134,7 @@ LICENSE:
  * Uncomment the following lines to save code space
  */
 //#define	REMOVE_PROGRAM_LOCK_BIT_SUPPORT		// disable program lock bits
-//#define	REMOVE_BOOTLOADER_LED				// no LED to show active bootloader
+#define	REMOVE_BOOTLOADER_LED				// no LED to show active bootloader
 //#define	REMOVE_CMD_SPI_MULTI				// disable processing of SPI_MULTI commands, Remark this line for AVRDUDE <Worapoht>
 //
 
@@ -595,8 +595,8 @@ int main(void)
 #ifndef REMOVE_BOOTLOADER_LED
 	/* PROG_PIN pulled low, indicate with LED that bootloader is active */
 	PROGLED_DDR		|=	(1<<PROGLED_PIN);
-	PROGLED_PORT	&=	~(1<<PROGLED_PIN);	// active low LED ON
-//	PROGLED_PORT	|=	(1<<PROGLED_PIN);	// active high LED ON
+//	PROGLED_PORT	&=	~(1<<PROGLED_PIN);	// active low LED ON
+	PROGLED_PORT	|=	(1<<PROGLED_PIN);	// active high LED ON
 
 #ifdef _DEBUG_WITH_LEDS_
 	for (ii=0; ii<3; ii++)
@@ -1115,7 +1115,7 @@ int main(void)
 	
 		#ifndef REMOVE_BOOTLOADER_LED
 			//*	<MLS>	toggle the LED
-			//PROGLED_PORT	^=	(1<<PROGLED_PIN);	// active high LED ON
+			PROGLED_PORT	^=	(1<<PROGLED_PIN);	// active high LED ON
 		#endif
 
 		}
