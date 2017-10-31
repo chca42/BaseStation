@@ -134,7 +134,7 @@ LICENSE:
  * Uncomment the following lines to save code space
  */
 //#define	REMOVE_PROGRAM_LOCK_BIT_SUPPORT		// disable program lock bits
-//#define	REMOVE_BOOTLOADER_LED				// no LED to show active bootloader
+#define	REMOVE_BOOTLOADER_LED				// no LED to show active bootloader
 //#define	REMOVE_CMD_SPI_MULTI				// disable processing of SPI_MULTI commands, Remark this line for AVRDUDE <Worapoht>
 //
 
@@ -145,7 +145,7 @@ LICENSE:
 //*	indicates that bootloader is active
 //*	PG2 -> LED on Wiring board
 //************************************************************************
-#define		BLINK_LED_WHILE_WAITING
+//#define		BLINK_LED_WHILE_WAITING
 
 #ifdef _MEGA_BOARD_
 	#define PROGLED_PORT	PORTB
