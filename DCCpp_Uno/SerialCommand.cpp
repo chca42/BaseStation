@@ -100,6 +100,21 @@ void SerialCommand::parse(char *com){
       mRegs->setThrottle(com+1);
       break;
 
+    case 'p':       // <p REGISTER CAB SPEED DIRECTION>
+/*
+ *    sets the throttle for a given register/cab combination 
+ *    
+ *    REGISTER: an internal register number, from 1 through MAX_MAIN_REGISTERS (inclusive), to store the DCC packet used to control this throttle setting
+ *    CAB:  the short (1-127) or long (128-10293) address of the engine decoder
+ *    SPEED: throttle speed from 0-126, or -1 for emergency stop (resets SPEED to 0)
+ *    DIRECTION: 1=forward, 0=reverse.  Setting direction when speed=0 or speed=-1 only effects directionality of cab lighting for a stopped train
+ *    
+ *    returns: <T REGISTER SPEED DIRECTION>
+ *    
+ */
+      pRegs->setThrottle(com+1);
+      break;
+
 /***** OPERATE ENGINE DECODER FUNCTIONS F0-F28 ****/    
 
     case 'f':       // <f CAB BYTE1 [BYTE2]>
@@ -138,6 +153,11 @@ void SerialCommand::parse(char *com){
  * 
  */
       mRegs->setFunction(com+1);
+      break;
+
+    
+    case 'l':       // <l CAB BYTE1 [BYTE2]>
+      pRegs->setFunction(com+1);
       break;
       
 /***** OPERATE STATIONARY ACCESSORY DECODERS  ****/    
