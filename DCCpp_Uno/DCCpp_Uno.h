@@ -8,6 +8,7 @@ Part of DCC++ BASE STATION for the Arduino
 **********************************************************************/
 
 #include "Config.h"
+#include <inttypes.h>
 
 #ifndef DCCpp_Uno_h
 #define DCCpp_Uno_h
@@ -134,6 +135,9 @@ Part of DCC++ BASE STATION for the Arduino
 #define SHOW_PACKETS  0       // set to zero to disable printing of every packet for select main operations track commands
 
 /////////////////////////////////////////////////////////////////////////////////////
+
+extern uint8_t outputEnable;
+
 
 #endif
 

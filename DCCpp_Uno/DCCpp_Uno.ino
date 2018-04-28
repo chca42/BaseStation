@@ -200,6 +200,8 @@ CurrentMonitor progMonitor(CURRENT_MONITOR_PIN_PROG,"<p3>");  // create monitor 
 // MAIN ARDUINO LOOP
 ///////////////////////////////////////////////////////////////////////////////
 
+uint8_t outputEnable = 0;
+
 void loop(){
   
   SerialCommand::process();              // check for, and process, and new serial commands
@@ -453,7 +455,7 @@ void setup(){
     }                                                     /*   END-ELSE */ \
   }                                                       /* END-IF: currentReg, activePacket, and currentBit should now be properly set to point to next DCC bit */ \
   \
-  if((R.currentBit > 1) && (R.currentBit < 6)) { \
+  if(outputEnable && (R.currentBit > 1) && (R.currentBit < 6)) { \
     BRAKE_PORT_ ## T |= BRAKE_PORTPIN_  ## T; \
   } \
   else if(R.currentBit == 6) { \
