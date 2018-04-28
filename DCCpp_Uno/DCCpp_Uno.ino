@@ -244,6 +244,7 @@ void setup(){
   Serial.print(__DATE__);
   Serial.print(" ");
   Serial.print(__TIME__);
+  Serial.print(" debug ");
   Serial.print(">");
 
   #if COMM_TYPE == 1
@@ -285,6 +286,7 @@ void setup(){
   digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_A,LOW);
 
   pinMode(DCC_SIGNAL_PIN_MAIN, OUTPUT);      // THIS ARDUINO OUPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-A OF MOTOR CHANNEL-A
+  digitalWrite(DCC_SIGNAL_PIN_MAIN,LOW);
 
   bitSet(TCCR1A,WGM10);     // set Timer 1 to FAST PWM, with TOP=OCR1A
   bitSet(TCCR1A,WGM11);
@@ -293,6 +295,8 @@ void setup(){
 
   bitSet(TCCR1A,COM1B1);    // set Timer 1, OC1B (pin 10/UNO, pin 12/MEGA) to inverting toggle (actual direction is arbitrary)
   bitSet(TCCR1A,COM1B0);
+  #define STOP_MAIN bitClear(TCCR1A,COM1B1); bitClear(TCCR1A,COM1B0);
+  #define START_MAIN bitSet(TCCR1A,COM1B1); bitSet(TCCR1A,COM1B0);
 
   bitClear(TCCR1B,CS12);    // set Timer 1 prescale=1
   bitClear(TCCR1B,CS11);
@@ -326,6 +330,7 @@ void setup(){
   digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_B,LOW);
 
   pinMode(DCC_SIGNAL_PIN_PROG,OUTPUT);      // THIS ARDUINO OUTPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-B OF MOTOR CHANNEL-B
+  digitalWrite(DCC_SIGNAL_PIN_PROG,LOW);
 
   bitSet(TCCR0A,WGM00);     // set Timer 0 to FAST PWM, with TOP=OCR0A
   bitSet(TCCR0A,WGM01);
@@ -333,6 +338,8 @@ void setup(){
      
   bitSet(TCCR0A,COM0B1);    // set Timer 0, OC0B (pin 5) to inverting toggle (actual direction is arbitrary)
   bitSet(TCCR0A,COM0B0);
+  #define STOP_PROG bitClear(TCCR0A,COM0B1); bitClear(TCCR0A,COM0B0);
+  #define START_PROG bitSet(TCCR0A,COM0B1); bitSet(TCCR0A,COM0B0);
 
   bitClear(TCCR0B,CS02);    // set Timer 0 prescale=64
   bitSet(TCCR0B,CS01);
@@ -364,6 +371,7 @@ void setup(){
   digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_B,LOW);
 
   pinMode(DCC_SIGNAL_PIN_PROG,OUTPUT);      // THIS ARDUINO OUTPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-B OF MOTOR CHANNEL-B
+  digitalWrite(DCC_SIGNAL_PIN_PROG,LOW);
 
   bitSet(TCCR3A,WGM30);     // set Timer 3 to FAST PWM, with TOP=OCR3A
   bitSet(TCCR3A,WGM31);
@@ -372,6 +380,8 @@ void setup(){
 
   bitSet(TCCR3A,COM3B1);    // set Timer 3, OC3B (pin 2) to inverting toggle (actual direction is arbitrary)
   bitSet(TCCR3A,COM3B0);
+  #define STOP_PROG bitClear(TCCR3A,COM3B1); bitClear(TCCR3A,COM3B0);
+  #define START_PROG bitSet(TCCR3A,COM3B1); bitSet(TCCR3A,COM3B0);
 
   bitClear(TCCR3B,CS32);    // set Timer 3 prescale=1
   bitClear(TCCR3B,CS31);
@@ -422,7 +432,10 @@ void setup(){
 
 // THE INTERRUPT CODE MACRO:  R=REGISTER LIST (mainRegs or progRegs), and N=TIMER (0 or 1)
 
-#define DCC_SIGNAL(R,N) \
+/*
+*/
+
+#define DCC_SIGNAL(R,N,T) \
   if(R.currentBit==R.currentReg->activePacket->nBits){    /* IF no more bits in this DCC Packet */ \
     R.currentBit=0;                                       /*   reset current bit pointer and determine which Register and Packet to process next--- */ \   
     if(R.nRepeat>0 && R.currentReg==R.reg){               /*   IF current Register is first Register AND should be repeated */ \
@@ -439,7 +452,14 @@ void setup(){
       R.currentReg++;                                     /*     increment current Register (note this logic causes Register[0] to be skipped when simply cycling through all Registers) */ \
     }                                                     /*   END-ELSE */ \
   }                                                       /* END-IF: currentReg, activePacket, and currentBit should now be properly set to point to next DCC bit */ \
-                                                          \
+  \
+  if((R.currentBit > 1) && (R.currentBit < 6)) { \
+    BRAKE_PORT_ ## T |= BRAKE_PORTPIN_  ## T; \
+  } \
+  else if(R.currentBit == 6) { \
+    BRAKE_PORT_ ## T &= ~BRAKE_PORTPIN_ ## T; \
+  } \
+  \
   if(R.currentReg->activePacket->buf[R.currentBit/8] & R.bitMask[R.currentBit%8]){     /* IF bit is a ONE */ \
     OCR ## N ## A=DCC_ONE_BIT_TOTAL_DURATION_TIMER ## N;                               /*   set OCRA for timer N to full cycle duration of DCC ONE bit */ \
     OCR ## N ## B=DCC_ONE_BIT_PULSE_DURATION_TIMER ## N;                               /*   set OCRB for timer N to half cycle duration of DCC ONE but */ \
@@ -455,19 +475,19 @@ void setup(){
 // NOW USE THE ABOVE MACRO TO CREATE THE CODE FOR EACH INTERRUPT
 
 ISR(TIMER1_COMPB_vect){              // set interrupt service for OCR1B of TIMER-1 which flips direction bit of Motor Shield Channel A controlling Main Track
-  DCC_SIGNAL(mainRegs,1)
+  DCC_SIGNAL(mainRegs,1,MAIN)
 }
 
 #ifdef ARDUINO_AVR_UNO      // Configuration for UNO
 
 ISR(TIMER0_COMPB_vect){              // set interrupt service for OCR1B of TIMER-0 which flips direction bit of Motor Shield Channel B controlling Prog Track
-  DCC_SIGNAL(progRegs,0)
+  DCC_SIGNAL(progRegs,0,PROG)
 }
 
 #else      // Configuration for MEGA
 
 ISR(TIMER3_COMPB_vect){              // set interrupt service for OCR3B of TIMER-3 which flips direction bit of Motor Shield Channel B controlling Prog Track
-  DCC_SIGNAL(progRegs,3)
+  DCC_SIGNAL(progRegs,3,PROG)
 }
 
 #endif
