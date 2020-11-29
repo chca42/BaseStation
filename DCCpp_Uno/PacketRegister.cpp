@@ -233,9 +233,9 @@ void RegisterList::readCV(char *s) volatile{
 
     bRead[2]=0xE8+i;  
 
-    loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
+    loadPacket(0,resetPacket,2,5);          // NMRA recommends starting with 3 reset packets
     loadPacket(0,bRead,3,5);                // NMRA recommends 5 verfy packets
-    loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+    loadPacket(0,bRead,3,1);
 
     for(int j=0;j<ACK_SAMPLE_COUNT;j++){
       c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);
@@ -259,7 +259,7 @@ void RegisterList::readCV(char *s) volatile{
 
   loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
   loadPacket(0,bRead,3,5);                // NMRA recommends 5 verfy packets
-  loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+  loadPacket(0,bRead,3,1);
     
   for(int j=0;j<ACK_SAMPLE_COUNT;j++){
     c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);
@@ -299,7 +299,8 @@ void RegisterList::writeCVByte(char *s) volatile{
   bWrite[2]=bValue;
 
   loadPacket(0,resetPacket,2,1);
-  loadPacket(0,bWrite,3,4);
+  loadPacket(0,bWrite,3,4); // 4->6
+  loadPacket(0,bWrite,3,1);
   loadPacket(0,resetPacket,2,1);
   loadPacket(0,idlePacket,2,10);
 
@@ -315,7 +316,8 @@ void RegisterList::writeCVByte(char *s) volatile{
 
   loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
   loadPacket(0,bWrite,3,5);               // NMRA recommends 5 verfy packets
-  loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+  loadPacket(0,bWrite,3,1);
+  //loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
     
   for(int j=0;j<ACK_SAMPLE_COUNT;j++){
     c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);

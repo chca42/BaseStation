@@ -82,8 +82,13 @@ Part of DCC++ BASE STATION for the Arduino
   #define SIGNAL_ENABLE_PIN_MAIN 9
   #define SIGNAL_ENABLE_PIN_PROG 11
 
+  #define BRAKE_PORT_MAIN PORTA
+  #define BRAKE_PORT_PROG PORTA
+  #define BRAKE_PORTPIN_MAIN 1<<1
+  #define BRAKE_PORTPIN_PROG 1<<3
+
   #define CURRENT_MONITOR_PIN_MAIN A0
-  #define CURRENT_MONITOR_PIN_PROG A1
+  #define CURRENT_MONITOR_PIN_PROG A2
 
   #define DIRECTION_MOTOR_CHANNEL_PIN_A 7
   #define DIRECTION_MOTOR_CHANNEL_PIN_B 8
@@ -140,5 +145,3 @@ extern uint8_t outputEnable;
 
 
 #endif
-
-
